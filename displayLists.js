@@ -15,7 +15,21 @@ var censusDictionary = null
 var censusColumn1 = null
 var censusColumn2 = null
 var states = null
-var currentTopics = ["SE_T145_002","SE_T013_002","SE_T025_005","SE_T147_001"]
+var ascending1 = false
+var ascending2 = false
+var currentTopic1 = null
+var currentTopic2 = null
+var currentTopics = ["SE_T025_006","SE_T025_007","SE_T025_004","SE_T025_005","SE_T025_002","SE_T025_003",
+"SE_T025_001","SE_T002_003","SE_T002_002","SE_T002_001","SE_T025_008","SE_T050_011","SE_T050_010",
+"SE_T050_013","SE_T050_012","SE_T050_014","SE_T078_002","SE_T139_067","SE_T182_001","SE_T139_122",
+"SE_T053_001","SE_T053_003","SE_T053_002","SE_T053_005","SE_T053_004","SE_T053_006","SE_T139_034",
+"SE_T147_001","SE_T013_005","SE_T013_004","SE_T013_007","SE_T013_006","SE_T013_001","SE_T059_001",
+"SE_T013_003","SE_T013_002","SE_T056_017","SE_T145_002","SE_T007_002","SE_T013_008","SE_T007_001",
+"SE_T139_085","SE_T157_001","SE_T081_001","SE_T081_002","SE_T050_006","SE_T050_007","SE_T050_004",
+"SE_T050_005","SE_T050_002","SE_T050_003","SE_T108_002","SE_T050_001","SE_T005_001","SE_T139_002",
+"SE_T145_001","SE_T050_008","SE_T050_009","SE_T030_001","SE_T030_002","SE_T083_001","SE_T094_003",
+"SE_T004_001","SE_T080_001","SE_T004_003","SE_T004_002","SE_T057_001","SE_T139_091","SE_T094_001",
+"SE_T182_007","SE_T108_001","SE_T139_001","SE_T182_002","SE_T007_013","SE_T080_002","SE_T056_001","SE_T056_002","SE_T078_001"]
 $(function() {
     queue()
         .defer(d3.csv,"census_filtered_population_100.csv")
@@ -65,6 +79,63 @@ function dataDidLoad(error,censusfile,statesGeojson,censusDictionaryFile,namesFi
         .append("div")
         .attr("id","range2")
         .html(addRange(sortedData2))
+    
+     d3.select("#header1")
+        .append("div")
+        .attr("id","sortOrder1")
+        .html(function(){
+            if(ascending2==true){
+                return "sort low to high"
+            }else{
+                return "sort high to low"
+            }
+        })
+        .style("text-decoration","underline")
+        .style("cursor","pointer")
+        .on("click",function(){
+            if(ascending2==true){
+                d3.select(this).html("sort low to high")
+                ascending2 = false
+            }else{
+                d3.select(this).html("sort high to low")
+                ascending2 = true
+            }
+            d3.selectAll(".map1").remove()
+            var newName = dataKeys[currentTopic1]
+            var newSortedData = sortByValue(currentTopic1,"right").slice(0,100)
+            var newColumnData = makeDictionary(newSortedData)
+            d3.select("#range1").html(addRange(newSortedData))
+            setUpThumbnails(newSortedData,newName,"map1",newColumnData)
+        })
+     d3.select("#header2")
+        .append("div")
+        .attr("id","sortOrder2")
+        .html(function(){
+            if(ascending2==true){
+                return "sort low to high"
+            }else{
+                return "sort high to low"
+            }
+        })
+        .style("text-decoration","underline")
+        .style("cursor","pointer")
+        .on("click",function(){
+            if(ascending2==true){
+                d3.select(this).html("sort low to high")
+                ascending2 = false
+            }else{
+                d3.select(this).html("sort high to low")
+                ascending2 = true
+            }
+            d3.selectAll(".map2").remove()
+            var newName = dataKeys[currentTopic2]
+            var newSortedData = sortByValue(currentTopic2,"right").slice(0,100)
+            var newColumnData = makeDictionary(newSortedData)
+            d3.select("#range2").html(addRange(newSortedData))
+            setUpThumbnails(newSortedData,newName,"map2",newColumnData)
+            
+        })
+    
     setUpThumbnails(sortedData1,columnName1,"map1",censusColumn1)
     setUpThumbnails(sortedData2,columnName2,"map2",censusColumn2)
     
@@ -103,8 +174,13 @@ function makeDictionary(data){
     }
     return formatted
 }
-function sortByValue(column){
+function sortByValue(column,lr){
     var formatted = []
+    if(lr == "left"){
+        var order = ascending1
+    }else{
+        var order = ascending2
+    }
    // console.log(census)
     for(var i in census){
         var entry = census[i]
@@ -114,7 +190,13 @@ function sortByValue(column){
             formatted.push({Gid:gid,value:value})
         }
     }
-    var sorted =formatted.sort(function(a, b){return parseFloat(b["value"])-parseFloat(a["value"])})
+    var sorted =formatted.sort(function(a, b){
+        if(order == false){
+            return parseFloat(b["value"])-parseFloat(a["value"])
+        }else{
+            return parseFloat(a["value"])-parseFloat(b["value"])
+        }
+    })
     return sorted;
 }
 function testImage(gid,index,mainDiv,columnData,loadedIndex,numberOfColumns) {
@@ -142,27 +224,31 @@ function imageNotFound(gid){
 function addSelect(div,currentKey,lr){
     var select = d3.select(div).append("select").attr("class","dropdown").attr("id","dropdown"+currentKey).attr("name","dropdown")
     var topics = Object.keys(dataKeys)
-    for(var k in topics){
-        if(topics[k]==currentKey){
-            select.append("option").attr("class","option").attr("value",topics[k]).html(dataKeys[topics[k]]).attr("selected","selected")
-        }else{
-            select.append("option").attr("class","option").attr("value",topics[k]).html(dataKeys[topics[k]])
+    for(var k in currentTopics){
+        if(topics.indexOf(currentTopics[k])>-1){
+            if(currentTopics[k]==currentKey){
+                select.append("option").attr("class","option").attr("value",currentTopics[k]).html(dataKeys[currentTopics[k]])
+                .attr("selected","selected")
+            }else{
+                select.append("option").attr("class","option").attr("value",currentTopics[k]).html(dataKeys[currentTopics[k]])
+            }
         }
     }
     document.getElementById("dropdown"+currentKey).onchange=function(){        
-        var newTopic = this.value
-        
+        var newTopic = this.value        
         if(lr=="left"){
+            currentTopic1 = newTopic
             d3.selectAll(".map1").remove()
             var newName = dataKeys[newTopic]
-            var newSortedData = sortByValue(newTopic).slice(0,100)
+            var newSortedData = sortByValue(newTopic,lr).slice(0,100)
             var newColumnData = makeDictionary(newSortedData)
             d3.select("#range1").html(addRange(newSortedData))
             setUpThumbnails(newSortedData,newName,"map1",newColumnData)
         }else{
+            currentTopic2 = newTopic
             d3.selectAll(".map2").remove()
             var newName = dataKeys[newTopic]
-            var newSortedData = sortByValue(newTopic).slice(0,100)
+            var newSortedData = sortByValue(newTopic,lr).slice(0,100)
             var newColumnData = makeDictionary(newSortedData)
             d3.select("#range2").html(addRange(newSortedData))
             setUpThumbnails(newSortedData,newName,"map2",newColumnData)
@@ -263,7 +349,7 @@ function drawCharts(gid){
 function drawDetailUSMap(gid){
     d3.selectAll("#countryMap svg").remove()
     var width = 300
-    var height = 300
+    var height = 220
     var data = states
     var projection =  d3.geo.albers()
 			.center([-92,55])
@@ -275,7 +361,7 @@ function drawDetailUSMap(gid){
         .projection(projection);
         
     var statesMap = d3.select("#countryMap")
-                    .append("svg").attr("width",300).attr("height",300)
+                    .append("svg").attr("width",300).attr("height",220)
         
         var lat = parseFloat(centroids[gid].lat)
         var lng = parseFloat(centroids[gid].lng)
