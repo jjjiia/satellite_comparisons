@@ -58,7 +58,7 @@
            margin:10px;
            overflow:hidden;
            position:absolute;
-           height:10000px;
+           height:8000px;
            width:35%;
            max-width:1020px;
            left:0px;
@@ -73,7 +73,7 @@
           margin:10px;
           position:absolute;
           overflow:hidden;
-          height:10000px;
+          height:8000px;
           width:37%;
           max-width:1020px;
           left:35%;
@@ -90,6 +90,7 @@
          width:20%;
          padding:20px;
          top:0px;
+         overflow:auto;
        }
        .dropdown{
          width:90%;
@@ -100,10 +101,8 @@
           line-height:0px;
         }
         .smallMapsCaption{
-          font-size:24px;
+          font-size:18px;
           color:white;
-          vertical-align: middle;
-          padding-top:40px;
           text-align:center;
         }
         .outer{
@@ -133,7 +132,7 @@
           width:35%;
           display:inline-block;
           position:fixed;
-          top:40px;
+          top:45px;
           z-index:999;
           background-color:#fff;
           padding:10px;
@@ -143,17 +142,19 @@
           left:35%;
           display:inline-block;
           position:fixed;
-          top:40px;
+          top:45px;
           z-index:999;
           background-color:#fff;
           padding:10px;          
         }
         #title{
-          font-size:24px;
-          letter-spacing:2px;
-          margin:10px;
+          font-size:14px;
+          padding:10px;
           z-index:9999;
-          height:50px;
+          height:35px;
+          position:fixed;
+          background-color:#fff;
+          width:70%;
         }
         #intro{
           border:1px solid black;
@@ -172,7 +173,9 @@
           margin:0px;
         }
         #chart{
-          margin-top:20px;
+          margin-top:0px;
+          height:200px;
+          overflow:auto;
         }
         #countryMap{
           width:250px;
@@ -190,7 +193,10 @@
 </head>
 <body>
   <div id="title">
-    Sort tracts by:
+        Sort and compare satellite images taken from census tracts
+        based on any Census categories in dropdown list.
+        <br/>
+        Showing only first 500 tracts for now. <strong>Click to see whole tract. </strong>
   </div>
   <div id ="header">
     <div id="header1"></div>
@@ -202,12 +208,7 @@
     <div id="map2">
     </div>
     <div id="map3">
-      <div id="intro">
-        Sort and compare satellite images taken from census tracts
-        based on any Census categories in dropdown list.
-        <br/>
-        <strong>Click to see whole tract. </strong>
-      </div>
+     
       <div id="tractName">
       </div>
       <div id="tractMap">

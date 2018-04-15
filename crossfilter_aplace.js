@@ -18,7 +18,7 @@ $(function() {
         .defer(d3.csv,"census_filtered_population_10.csv")
         .defer(d3.json,"census_keys_short.json")
         .defer(d3.csv,"geo_names.csv")
-        .defer(d3.csv,"centroids.csv")
+        .defer(d3.csv,"allCentroids.csv")
         .await(dataDidLoad);
 })
   
@@ -185,7 +185,7 @@ function loadSmallMap(div){
         .style("z-index",1)
     
     
-    d3.select("#smallmap_"+div).append("img").attr("src","resize/"+div+".jpg")
+    d3.select("#smallmap_"+div).append("img").attr("src","resized/"+div+".jpg")
 }
 function drawSmallMap(div){
     var centroid = [centroids[div].lat,centroids[div].lng]

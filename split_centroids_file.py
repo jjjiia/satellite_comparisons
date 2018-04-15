@@ -33,7 +33,7 @@ def newCentroids():
                 csvWriter = csv.writer(outfile)
                 csvWriter.writerow(row)
     
-newCentroids()
+#newCentroids()
 
 
 
@@ -63,4 +63,4 @@ def findUnfinished():
                 
         print len(unfinished)
 
-#findUnfinished()
+findUnfinished()

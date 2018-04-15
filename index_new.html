@@ -53,17 +53,6 @@
            color:#aaaaaa;
            font-size:11px;
          }
-         #map { 
-           overflow:hidden;
-           z-index:-999;
-           height:100%;
-           width:100%;
-           position:fixed;
-           left:0px;
-           top:0px;
-           padding:0px;
-           margin:0px;
-        }
         #header{
           background-color:rgba(0,0,0,.9);
           padding:10px;
@@ -113,16 +102,17 @@
           position:fixed;
           top:0px;
           right:0px;
-          width:75%;
+          width:50%;
           height:100%;
-          background-color:rgba(255,255,250,.9);
           overflow:auto;
         }
         .mapboxgl-ctrl-top-right{
           margin-top:70px;
           margin-right:12%;
         }
-        .smallMaps{
+        #smallMaps{
+          width:50%;
+          border:1px solid black;
         }
         .smallMapsCaption{
           line-height:14px;
@@ -153,33 +143,22 @@
         #track{
           background-color:#a9a53e;
         }
-        #placeName{
-          position:fixed;
-          left:17%;
-          top:70px;
-          font-size:18px;
-          z-index:99999999;
-          padding:10px;
-          background-color:rgba(0,0,0,0);
-        }
     </style>
     <link rel="shortcut icon" href="">
     
 </head>
 <body>
-  <div id="placeName">
-    place name
-  </div>
 
     <div id="header">
-      Click on map or use histograms to filter and see similar places
+     choose 4 filters to use, and filter to see areas that match all 4. 
+     click on map thumbnails to learn more about the area.
     </div>
 
     <div class="left-panel">
               <div id="count"></div>
               <div id="charts"></div>
         </div>
-        <div id="likePlaces" class="ui-widget-content">
+        <div id="smallMaps">
           <div id = "smallMapsTitle">Places like it:<br/></div>
           
         </div>
@@ -187,12 +166,8 @@
    
 <div>    
   <script>
-var menuColors = ["#6ec83d",
-"#4a6226",
-"#51a136",
-"#85ac6c",
-"#a9a53e"]
-    </script>
+    var menuColors = ["#6ec83d","#4a6226","#51a136", "#85ac6c","#a9a53e"]
+  </script>
 <!--<script src='population100.js'></script>-->
 <script src='crossfilter_aplace.js'></script>
 
