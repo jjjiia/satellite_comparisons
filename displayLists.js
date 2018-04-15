@@ -1,0 +1,333 @@
+//load census data
+//crossfilter
+//export filtered data ids
+//load map
+//click on map filter
+//var topics = ["SE_T025_006","SE_T025_007","SE_T025_004","SE_T025_005","SE_T025_002"]
+var charts = {}
+var filteredData = null
+var map = null
+var centroids = null
+var names = null
+var dataKeys = null
+var census = null
+var censusDictionary = null
+var censusColumn1 = null
+var censusColumn2 = null
+var states = null
+var currentTopics = ["SE_T145_002","SE_T013_002","SE_T025_005","SE_T147_001"]
+$(function() {
+    queue()
+        .defer(d3.csv,"census_filtered_population_100.csv")
+        .defer(d3.json,"states.geojson")
+        .defer(d3.json,"census_keys_short.json")
+        .defer(d3.csv,"geo_names.csv")
+        .defer(d3.csv,"allCentroids.csv")
+        .await(dataDidLoad);
+})
+  
+function dataDidLoad(error,censusfile,statesGeojson,censusDictionaryFile,namesFile,centroidsFile){
+    dataKeys = censusDictionaryFile
+    census = censusfile
+    names = makeDictionary(namesFile)
+    centroids = makeDictionary(centroidsFile)
+    censusDictionary = makeDictionary(census)
+    states = statesGeojson
+    
+    
+//    var tempGid = "1400000US02290000100"
+  //  drawDetailUSMap(tempGid)
+    
+    var column1 = "SE_T013_004"//"SE_T157_001"//"SE_T057_001"
+    sortedData1 = sortByValue(column1).slice(0,100)
+    
+    var column2 = "SE_T013_002"//"SE_T157_001"//"SE_T057_001"
+    sortedData2 = sortByValue(column2).slice(0,100)
+    var censusColumn1 = makeDictionary(sortedData1)
+    var censusColumn2 = makeDictionary(sortedData2)
+    //console.log(censusDictionaryFile[column])
+
+    $(function() {
+        $('.lazy').Lazy();
+    });
+          
+    var columnName1 = dataKeys[column1]
+    var columnName2 = dataKeys[column2]
+    //console.log(sortedData)
+    addSelect("#header1",column1,"left")
+    addSelect("#header2",column2,"right")
+    
+     d3.select("#header1")
+        .append("div")
+        .attr("id","range1")
+        .html(addRange(sortedData1))
+    d3.select("#header2")
+        .append("div")
+        .attr("id","range2")
+        .html(addRange(sortedData2))
+    setUpThumbnails(sortedData1,columnName1,"map1",censusColumn1)
+    setUpThumbnails(sortedData2,columnName2,"map2",censusColumn2)
+    
+}
+function addRange(data){
+    var max = data[0].value
+    var min = data[data.length-1].value
+    var range = min+" to " +max  
+    return range
+}
+function makeColumnDictionary(data){
+    var formatted = {}
+    for(var i in data){
+        var gid = data[i]["gid"]
+        formatted[gid] = data[i]
+    }
+    return formatted
+}
+function setUpThumbnails(data,cName,mainDiv,columnData){
+  // console.log(data)
+    var width = $("#"+mainDiv).innerWidth()
+    console.log(width)
+    var numberOfColumns = Math.round(width/100)
+     var loadedIndex = 0
+
+    for(var i in data){
+        var gid = data[i]["Gid"]
+        testImage(gid,i,mainDiv,columnData,i,numberOfColumns)
+    }
+}
+function makeDictionary(data){
+    var formatted = {}
+    for(var i in data){
+        var gid = data[i]["Gid"]
+        formatted[gid] = data[i]
+    }
+    return formatted
+}
+function sortByValue(column){
+    var formatted = []
+   // console.log(census)
+    for(var i in census){
+        var entry = census[i]
+        var gid = entry["Gid"]
+        var value = parseFloat(entry[column])
+        if(value!=0){
+            formatted.push({Gid:gid,value:value})
+        }
+    }
+    var sorted =formatted.sort(function(a, b){return parseFloat(b["value"])-parseFloat(a["value"])})
+    return sorted;
+}
+function testImage(gid,index,mainDiv,columnData,loadedIndex,numberOfColumns) {
+    var imageUrl = "resized/"+gid+".jpg"
+    var image = new Image(); 
+    image.src = imageUrl;
+    image.onload = function(){
+        if (image.width != 0) {
+            imageFound(gid,loadedIndex,mainDiv,columnData,numberOfColumns) 
+            loadedIndex+=1
+        }
+    }
+    
+}
+function imageNotFound(gid){
+    console.log("notfound")
+    d3.select("#map").append("div").attr("id","_"+gid).attr("class","outer").attr("class","smallMaps")
+        .style("width","100px")
+        .style("height","100px")
+    var elem = document.createElement("img");
+   
+     document.getElementById("_"+gid).appendChild(elem);
+     elem.src = "placeholder.jpg";
+}
+function addSelect(div,currentKey,lr){
+    var select = d3.select(div).append("select").attr("class","dropdown").attr("id","dropdown"+currentKey).attr("name","dropdown")
+    var topics = Object.keys(dataKeys)
+    for(var k in topics){
+        if(topics[k]==currentKey){
+            select.append("option").attr("class","option").attr("value",topics[k]).html(dataKeys[topics[k]]).attr("selected","selected")
+        }else{
+            select.append("option").attr("class","option").attr("value",topics[k]).html(dataKeys[topics[k]])
+        }
+    }
+    document.getElementById("dropdown"+currentKey).onchange=function(){        
+        var newTopic = this.value
+        
+        if(lr=="left"){
+            d3.selectAll(".map1").remove()
+            var newName = dataKeys[newTopic]
+            var newSortedData = sortByValue(newTopic).slice(0,100)
+            var newColumnData = makeDictionary(newSortedData)
+            d3.select("#range1").html(addRange(newSortedData))
+            setUpThumbnails(newSortedData,newName,"map1",newColumnData)
+        }else{
+            d3.selectAll(".map2").remove()
+            var newName = dataKeys[newTopic]
+            var newSortedData = sortByValue(newTopic).slice(0,100)
+            var newColumnData = makeDictionary(newSortedData)
+            d3.select("#range2").html(addRange(newSortedData))
+            setUpThumbnails(newSortedData,newName,"map2",newColumnData)
+        }
+    }
+}
+var toolTipDiv = d3.select("body").append("div")	
+    .attr("class", "tooltip")				
+    .style("opacity", 0)
+    .style("background-color","rgba(255,255,255,.9)")
+    .style("padding","5px")
+    .style("border-radius","5px")
+     .style("z-index",999999)
+function imageFound(gid,index,mainDiv,columnData,numberOfColumns) {
+   // alert('That image is found and loaded');
+   var column = index%numberOfColumns
+   var row = Math.floor(index/numberOfColumns)
+  // console.log(index+" "+column+" "+row+" "+columnData[gid].value)
+   var outer = d3.select("#"+mainDiv)//+"_c_"+index%numberOfColumns)
+       .append("div").attr("class","outer "+mainDiv)//.attr("id","columns_"+mainDiv)
+     //  .attr("id",mainDiv+"_"+gid)
+      .style("width","100px")
+      .style("height","100px")
+      //style("border","4px solid black")
+      //
+
+    outer.append("div")
+        .attr("class","smallMapsCaption")
+        .style("position","absolute")
+        .html(columnData[gid].value)
+        .style("height","60px")
+        .style("width","100px")
+         .style("margin-top",row*100)
+         .style("margin-left",column*100)
+   
+        .style("z-index",99999)
+       .style("background-color","rgba(255,255,255,.2)")
+       .style("opacity",0)
+       .style("cursor","pointer")
+       .on("mouseover",function(){
+           d3.select(this).style("opacity",1)
+           toolTipDiv.transition()		
+               .duration(200)		
+               .style("opacity", .9);
+           toolTipDiv.html(names[gid]["Geo_NAME"].split(",").join("<br/>"))	
+            .style("left", (d3.event.pageX) + "px")		
+            .style("top", (d3.event.pageY) + "px");	
+       })
+       .style("line-height","100%")
+       .on("mouseout",function(){
+           d3.select(this).style("opacity",0)
+           toolTipDiv.transition()		
+               .duration(500)		
+               .style("opacity", 0);
+       })
+       .on("click",function(){
+           d3.select(this).style("opacity",1)
+           loadDetailMap(gid)
+           d3.select("#tractName").html(names[gid]["Geo_NAME"].split(",").join("<br/>"))
+           drawCharts(gid)
+           drawDetailUSMap(gid)
+       })
+    //d3.select("#"+mainDiv+"_c_"+index%5)
+    outer.append("div")
+        .attr("id",mainDiv+"_"+gid).attr("class","smallMaps")
+        .style("width","100px")
+        .style("height","100px")
+        .attr("class","lazy _"+gid)
+         .style("margin-top",row*100)
+        .style("position","absolute")
+        .on("mouseover",function(){
+          // console.log(columnData[gid])
+        })
+       
+    var elem = document.createElement("img") 
+    document.getElementById(mainDiv+"_"+gid).appendChild(elem);
+    elem.src = "resized/"+gid+".jpg";
+
+    d3.select("#"+mainDiv+"_"+gid+" img ")
+        .style("z-index",-1)
+        .on("mouseover",function(){
+          //  console.log(columnData[gid])
+        })
+}
+function drawCharts(gid){
+    d3.selectAll("#chart svg").remove()
+    //d3.select("#chart").append("svg").attr("")
+    var text = ""
+    for(var i in dataKeys){
+        var columnName = dataKeys[i]
+        var value = censusDictionary[gid][i]
+        if(value!=undefined && value!=0){
+            text=text+columnName +" "+value+"<br/>"
+        }
+    }
+    d3.select("#chart").html(text).style("line-height","120%").style("padding","10px")
+}
+function drawDetailUSMap(gid){
+    d3.selectAll("#countryMap svg").remove()
+    var width = 300
+    var height = 300
+    var data = states
+    var projection =  d3.geo.albers()
+			.center([-92,55])
+			.translate([0, 0])
+			.scale(220)
+         //   .translate([width / 2, height / 2]);
+        
+    var path = d3.geo.path()
+        .projection(projection);
+        
+    var statesMap = d3.select("#countryMap")
+                    .append("svg").attr("width",300).attr("height",300)
+        
+        var lat = parseFloat(centroids[gid].lat)
+        var lng = parseFloat(centroids[gid].lng)
+		var projectedX = projection([lng, lat])[0];
+		var projectedY = projection([lng, lat])[1];
+    statesMap.selectAll("path")
+        .data(states.features)
+        .enter()
+        .append("path")
+        .attr('class',"states")
+        .attr("stroke","#555555")
+        .attr("fill","#ffffff")
+        .attr("d", path)
+    statesMap.append("circle").attr("cx",projectedX).attr("cy",projectedY).attr("r",5).attr("fill","red").attr("opacity",.7)        
+}
+function loadDetailMap(gid){
+    var centroid = [centroids[gid].lng,centroids[gid].lat]
+    mapboxgl.accessToken ="pk.eyJ1IjoibWFwYm94amlhIiwiYSI6ImNqZnNzcThyejNobWIyd3BvdXkzcWV6cXIifQ.4k07SppAzUEKPNGr1SMsFw"
+    var map = new mapboxgl.Map({
+         container: 'tractMap',
+         style:"mapbox://styles/mapboxjia/cjfssqwz07fvr2rqe65mc3j54",
+         center:centroid,
+         zoom: 16,
+         preserveDrawingBuffer: true    
+     });
+     map.on("load",function(){
+         d3.select(".mapboxgl-ctrl-bottom-right").remove()
+         d3.select(".mapboxgl-ctrl-bottom-left").remove()
+         
+         map.flyTo({
+             speed:.1,
+             zoom: 13 // make the flying slow
+           });
+     })
+    
+}
+
+
+function loadSmallMap(div){
+    console.log(div)
+    
+    d3.select("#map").append("div").attr("id","_"+div).attr("class","outer")
+        .style("width","100px")
+        .style("height","100px")
+
+    document.getElementById("_"+div).appendChild(elem);
+    elem.src = "resized/"+div+".jpg";
+
+
+   // d3.select("#_"+div).append("div").attr("id","smallmap_"+div).attr("class","smallMaps")
+   //     .style("width","100px")
+   //     .style("height","100px")
+   //     .attr("class","inner")
+   // d3.select("#smallmap_"+div).append("img").attr("src","resized/"+div+".jpg")
+}

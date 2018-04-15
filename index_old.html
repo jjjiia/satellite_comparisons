@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>alike map</title>
+  <script type="text/javascript" src="static/javascripts/mapbox-gl.js"></script>
+ 	<script type="text/javascript" src="static/javascripts/queue.v1.min.js"></script>
+ 	<script type="text/javascript" src="static/javascripts/jquery.min.js"></script>
+ 	<script type="text/javascript" src="static/javascripts/d3.js"></script>
+   <script type="text/javascript" src="static/javascripts/crossfilter.js"  ></script>
+  <script type="text/javascript" src="static/javascripts/dc.js"></script>
+<!--  <script type="text/javascript" src="static/javascripts/mapbox-gl-draw.js"></script>
+  <script type="text/javascript" src="static/javascripts/mapbox-gl-geocoder.min.js"></script>-->
+  <script type="text/javascript" src="static/javascripts/turf.min.js"></script>
+  <script type="text/javascript" src="static/javascripts/bootstrap.min.js"></script>
+  <script type="text/javascript" src="static/javascripts/mapbox.js"></script>
+  
+  <link rel="stylesheet" type="text/css" href="static/stylesheets/mapbox.css">
+  <link rel="stylesheet" type="text/css" href="static/stylesheets/bootstrap-theme.min.css">
+  <link rel="stylesheet" type="text/css" href="static/stylesheets/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="static/stylesheets/mapbox-gl-geocoder.css">
+  <link rel="stylesheet" type="text/css" href="static/stylesheets/mapbox-gl.css">
+  
+   <link rel="stylesheet" type="text/css" href="dc.css"/>
+   
+    <style>
+        body { margin:0; padding:0;
+          font-family:helvetica;
+          font-size:11px;
+         }
+         a{
+           color:#aaaaaa;
+           font-size:11px;
+         }
+         #map { 
+           position:fixed; top:0px; left:0px; width:100%; height:100%;padding:0px;margin:0px;overflow:hidden;
+           z-index:-999;
+        }
+        #count { 
+          color:#aaaaaa;
+          background-color:rgba(255,255,255,.9);
+          padding:10px;
+        }
+        #charts{
+          border-right:1px solid black;
+            font-size:12px;
+            font-family:helvetica;
+            color:#aaaaaa;
+            letter-spacing:1px;
+            display:block;
+            background-color:rgba(255,255,255,.9);
+            margin:5px;
+            padding:10px;
+            width:20%;
+        }
+        .filters{padding:20px;}
+        #likePlaces{
+          width:150px;
+          position:absolute;
+          right:0px;
+          top:0px;
+          border:1px solid black;
+          background-color:rgba(255,255,255,.9);
+          padding:5px;
+        }
+        .smallMap{
+          width:150px;
+          height:150px;
+        }
+        .dropdown{
+          font-size:11px;
+          width:100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-3 col-sm-3 col-md-3 col-lg-2" id="count"></div>
+      
+    </div>
+    
+    <div class="row" id='charts'>
+ 	  
+    </div>
+    
+    <div id="likePlaces"></div>
+    
+<div>    
+<script src='crossfilter_aplace.js'></script>
+
+</body>
+</html>
