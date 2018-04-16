@@ -351,7 +351,8 @@ function imageFound(gid,index,mainDiv,columnData,numberOfColumns) {
 function drawCharts(gid){
     d3.selectAll("#chart svg").remove()
     //d3.select("#chart").append("svg").attr("")
-    var text = ""
+    var text ="population"+" "+censusDictionary[gid]["SE_T002_001"]+"<br/>"
+    console.log(text+" "+gid)
     for(var i in dataKeys){
         var columnName = dataKeys[i]
         var value = censusDictionary[gid][i]
