@@ -19,22 +19,22 @@ var ascending1 = false
 var ascending2 = false
 var currentTopic1 = null
 var currentTopic2 = null
-var currentTopics = ["SE_T025_006","SE_T025_007","SE_T025_004","SE_T025_005","SE_T025_002","SE_T025_003",
-"SE_T025_001","SE_T002_003","SE_T002_002","SE_T002_001","SE_T025_008","SE_T050_011","SE_T050_010",
-"SE_T050_013","SE_T050_012","SE_T050_014","SE_T078_002","SE_T139_067","SE_T182_001","SE_T139_122",
-"SE_T053_001","SE_T053_003","SE_T053_002","SE_T053_005","SE_T053_004","SE_T053_006","SE_T139_034",
-"SE_T147_001","SE_T013_005","SE_T013_004","SE_T013_007","SE_T013_006","SE_T013_001","SE_T059_001",
-"SE_T013_003","SE_T013_002","SE_T056_017","SE_T145_002","SE_T007_002","SE_T013_008","SE_T007_001",
-"SE_T139_085","SE_T157_001","SE_T081_001","SE_T081_002","SE_T050_006","SE_T050_007","SE_T050_004",
-"SE_T050_005","SE_T050_002","SE_T050_003","SE_T108_002","SE_T050_001","SE_T005_001","SE_T139_002",
-"SE_T145_001","SE_T050_008","SE_T050_009","SE_T030_001","SE_T030_002","SE_T083_001","SE_T094_003",
-"SE_T004_001","SE_T080_001","SE_T004_003","SE_T004_002","SE_T057_001","SE_T139_091","SE_T094_001",
-"SE_T182_007","SE_T108_001","SE_T139_001","SE_T182_002","SE_T007_013","SE_T080_002","SE_T056_001","SE_T056_002","SE_T078_001"]
 
-var imageLimit =500
+var imageLimit =100
 
 var currentTopics = ["SE_T025_006","SE_T025_007","SE_T025_004","SE_T025_005","SE_T025_003","SE_T002_002","SE_T025_008","SE_T050_011","SE_T050_010","SE_T050_013","SE_T050_012","SE_T050_014","SE_T078_002","SE_T053_003","SE_T053_002","SE_T053_005","SE_T053_004","SE_T053_006","SE_T147_001","SE_T013_005","SE_T013_004","SE_T013_007","SE_T013_006","SE_T059_001","SE_T013_003","SE_T013_002","SE_T056_017","SE_T145_002","SE_T007_002","SE_T013_008","SE_T157_001","SE_T081_002","SE_T050_006","SE_T050_007","SE_T050_004","SE_T050_005","SE_T050_002","SE_T050_003","SE_T108_002","SE_T050_008","SE_T050_009","SE_T030_002","SE_T083_001","SE_T094_003","SE_T057_001","SE_T182_007","SE_T139_001","SE_T182_002","SE_T007_013","SE_T080_002","SE_T056_002"]
 
+var currentTopicsDictionary = {"population density":["SE_T002_002"],
+"age":["SE_T007_002", "SE_T007_013"],
+"race":["SE_T013_002", "SE_T013_003", "SE_T013_004", "SE_T013_005", "SE_T013_006", "SE_T013_007", "SE_T013_008"],
+"education":["SE_T030_002","SE_T025_003", "SE_T025_004", "SE_T025_005", "SE_T025_006", "SE_T025_007", "SE_T025_008"],
+"industry":["SE_T050_002", "SE_T050_003", "SE_T050_004", "SE_T050_005", "SE_T050_006", "SE_T050_007", "SE_T050_008", "SE_T050_009", "SE_T050_010", "SE_T050_011", "SE_T050_012", "SE_T050_013", "SE_T050_014"],
+"job sector":["SE_T053_002", "SE_T053_003", "SE_T053_004", "SE_T053_005", "SE_T053_006"],
+"income":["SE_T157_001","SE_T056_002","SE_T056_017","SE_T057_001","SE_T059_001","SE_T078_002","SE_T080_002","SE_T081_002","SE_T083_001","SE_T094_003"],
+"mortgage":["SE_T108_002"],
+"foreign born population":["SE_T139_001"],
+"health insurance":["SE_T145_002"],
+"transportation":["SE_T147_001","SE_T182_002", "SE_T182_007"]}
 
 $(function() {
     queue()
@@ -56,7 +56,9 @@ function dataDidLoad(error,censusfile,statesGeojson,censusDictionaryFile,namesFi
     states = statesGeojson
     
   
-    
+    $(document).ready(function(){
+        $(this).scrollTop(0);
+    });
     
 //    var tempGid = "1400000US02290000100"
   //  drawDetailUSMap(tempGid)
@@ -116,7 +118,6 @@ function dataDidLoad(error,censusfile,statesGeojson,censusDictionaryFile,namesFi
             d3.selectAll(".map1").remove()
             var newName = dataKeys[currentTopic1]
             var newSortedData = sortByValue(currentTopic1,"left").slice(0,imageLimit)
-            console.log(newSortedData)
             var newColumnData = makeDictionary(newSortedData)
             d3.select("#range1").html(addRange(newSortedData))
             setUpThumbnails(newSortedData,newName,"map1",newColumnData)
@@ -245,15 +246,23 @@ function imageNotFound(gid){
      elem.src = "placeholder.jpg";
 }
 function addSelect(div,currentKey,lr){
+    
+    //currentTopics.sort()
+    
     var select = d3.select(div).append("select").attr("class","dropdown").attr("id","dropdown"+currentKey).attr("name","dropdown")
     var topics = Object.keys(dataKeys)
-    for(var k in currentTopics){
-        if(topics.indexOf(currentTopics[k])>-1){
-            if(currentTopics[k]==currentKey){
-                select.append("option").attr("class","option").attr("value",currentTopics[k]).html(dataKeys[currentTopics[k]])
+    
+    for(var k in currentTopicsDictionary){
+            var group = currentTopicsDictionary[k]
+            select.append("optgroup").attr("class","optionGroup").attr("label",k)
+        
+        for(var t in group){
+            var topic = group[t]
+            if(topic==currentKey){
+                select.append("option").attr("class","option").attr("value",topic).html(dataKeys[topic])
                 .attr("selected","selected")
             }else{
-                select.append("option").attr("class","option").attr("value",currentTopics[k]).html(dataKeys[currentTopics[k]])
+                select.append("option").attr("class","option").attr("value",topic).html(dataKeys[topic])
             }
         }
     }
@@ -278,6 +287,22 @@ function addSelect(div,currentKey,lr){
         }
     }
 }
+function groupTopics(currentTopics){
+    var formatted = {}
+    
+    for(var i in currentTopics){
+        var topic = currentTopics[i]
+        var group = topic.split("_")[1]
+        if(Object.keys(formatted).indexOf(group)>-1){
+            formatted[group].push(topic)
+        }else{
+            formatted[group]=[]
+            formatted[group].push(topic)
+        }
+    }
+    return formatted
+}
+
 var toolTipDiv = d3.select("body").append("div")	
     .attr("class", "tooltip")				
     .style("opacity", 0)
@@ -301,7 +326,7 @@ function imageFound(gid,index,mainDiv,columnData,numberOfColumns) {
         .style("width","100px")
    
         .style("z-index",99999)
-       .style("background-color","rgba(255,255,255,.2)")
+       .style("background-color","rgba(255,55,55,.6)")
        .style("opacity",0)
        .style("cursor","pointer")
        .on("mouseover",function(){
@@ -315,13 +340,18 @@ function imageFound(gid,index,mainDiv,columnData,numberOfColumns) {
        })
        .style("line-height","100%")
        .on("mouseout",function(){
-           d3.select(this).style("opacity",0)
+           if(d3.select(this).classed('clickedOn')==false){               
+                   d3.select(this).style("opacity",0)
+           }
+          // d3.select(this).classed('clickedOn', false);
            toolTipDiv.transition()		
                .duration(1000)		
                .style("opacity", 0);
        })
        .on("click",function(){
-           d3.select(this).style("opacity",1)
+           d3.selectAll(".smallMapsCaption").classed('clickedOn', false).style("opacity", 0);
+
+           d3.select(this).style("opacity",1).classed('clickedOn', true).style("opacity", 1);
            loadDetailMap(gid)
            d3.select("#tractName").html(names[gid]["Geo_NAME"].split(",").join("<br/>"))
            drawCharts(gid)
@@ -352,7 +382,6 @@ function drawCharts(gid){
     d3.selectAll("#chart svg").remove()
     //d3.select("#chart").append("svg").attr("")
     var text ="population"+" "+censusDictionary[gid]["SE_T002_001"]+"<br/>"
-    console.log(text+" "+gid)
     for(var i in dataKeys){
         var columnName = dataKeys[i]
         var value = censusDictionary[gid][i]

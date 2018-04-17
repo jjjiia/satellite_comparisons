@@ -159,12 +159,13 @@ function filtermap(filteredData){
     d3.selectAll(".dot").remove()
     console.log("remove dots")
     drawDetailUSDots(filteredIds)
-    
+    d3.select("#mapDetail").html("")
     
  //   map.setFilter("tracts", filter);
     d3.selectAll(".smallMaps").remove()
     d3.selectAll(".smallMapsCaption").remove()
     //.slice(0,100)
+ 
     for(var i in filteredIds.slice(0,100)){
        // console.log(gid)
         var gid = filteredIds[i]
@@ -224,7 +225,7 @@ function imageFound(gid){
         .style("height","80px")
         .style("width","80px")
         .style("padding","10px")
-       .style("background-color","rgba(255,50,50,.2)")
+       .style("background-color","rgba(255,50,50,.7)")
        .style("opacity",0)
        .style("cursor","pointer")
         .on("click",function(){
