@@ -21,6 +21,7 @@ var currentTopic1 = null
 var currentTopic2 = null
 
 var imageLimit =100
+    var menuColors = ["#6ec83d","#4a6226","#51a136","#85ac6c","#a9a53e"]
 
 var currentTopics = ["SE_T025_006","SE_T025_007","SE_T025_004","SE_T025_005","SE_T025_003","SE_T002_002","SE_T025_008","SE_T050_011","SE_T050_010","SE_T050_013","SE_T050_012","SE_T050_014","SE_T078_002","SE_T053_003","SE_T053_002","SE_T053_005","SE_T053_004","SE_T053_006","SE_T147_001","SE_T013_005","SE_T013_004","SE_T013_007","SE_T013_006","SE_T059_001","SE_T013_003","SE_T013_002","SE_T056_017","SE_T145_002","SE_T007_002","SE_T013_008","SE_T157_001","SE_T081_002","SE_T050_006","SE_T050_007","SE_T050_004","SE_T050_005","SE_T050_002","SE_T050_003","SE_T108_002","SE_T050_008","SE_T050_009","SE_T030_002","SE_T083_001","SE_T094_003","SE_T057_001","SE_T182_007","SE_T139_001","SE_T182_002","SE_T007_013","SE_T080_002","SE_T056_002"]
 
@@ -75,11 +76,7 @@ function dataDidLoad(error,censusfile,statesGeojson,censusDictionaryFile,namesFi
     currentTopic1 = column1
     currentTopic2 = column2
 
-
-    $(function() {
-        $('.lazy').Lazy();
-    });
-          
+ 
     var columnName1 = dataKeys[column1]
     var columnName2 = dataKeys[column2]
     //console.log(sortedData)
@@ -159,7 +156,7 @@ function dataDidLoad(error,censusfile,statesGeojson,censusDictionaryFile,namesFi
 function addRange(data){
     var max = Math.round(data[0].value*100)/100
     var min = Math.round(data[data.length-1].value*100)/100
-    var range = min+" to " +max  
+    var range ="showing range "+ min+" to " +max  
     return range
 }
 function makeColumnDictionary(data){
@@ -303,14 +300,14 @@ function groupTopics(currentTopics){
     return formatted
 }
 
-var toolTipDiv = d3.select("body").append("div")	
-    .attr("class", "tooltip")				
-    .style("opacity", 0)
-    .style("background-color","rgba(255,255,255,.9)")
-    .style("padding","5px")
-    .style("border-radius","5px")
-     .style("z-index",999999)
-
+//var toolTipDiv = d3.select("body").append("div")	
+//    .attr("class", "tooltip")				
+//    .style("opacity", 0)
+//    .style("background-color","rgba(255,255,255,.9)")
+//    .style("padding","5px")
+//    .style("border-radius","5px")
+//     .style("z-index",999999)
+//
 function imageFound(gid,index,mainDiv,columnData,numberOfColumns) {
    // alert('That image is found and loaded');
    var column = index%numberOfColumns
@@ -321,22 +318,22 @@ function imageFound(gid,index,mainDiv,columnData,numberOfColumns) {
     outer.append("div")
         .attr("class","smallMapsCaption")
         .style("position","absolute")
-        .html("<br/><br/>"+columnData[gid].value)
+        .html("<br/>"+names[gid]["Geo_NAME"].split(",").join("<br/>"))
         .style("height","100px")
         .style("width","100px")
    
-        .style("z-index",99999)
+        .style("z-index",999)
        .style("background-color","rgba(255,55,55,.6)")
        .style("opacity",0)
        .style("cursor","pointer")
        .on("mouseover",function(){
            d3.select(this).style("opacity",1)
-           toolTipDiv.transition()		
-               .duration(200)		
-               .style("opacity", .9);
-           toolTipDiv.html(names[gid]["Geo_NAME"].split(",").join("<br/>"))	
-            .style("left", (d3.event.pageX) + "px")		
-            .style("top", (d3.event.pageY) + "px");	
+           //toolTipDiv.transition()		
+           //    .duration(200)		
+           //    .style("opacity", .9);
+          // toolTipDiv.html(names[gid]["Geo_NAME"].split(",").join("<br/>"))	
+          //  .style("left", (d3.event.pageX) + "px")		
+          //  .style("top", (d3.event.pageY) + "px");	
        })
        .style("line-height","100%")
        .on("mouseout",function(){
@@ -344,9 +341,9 @@ function imageFound(gid,index,mainDiv,columnData,numberOfColumns) {
                    d3.select(this).style("opacity",0)
            }
           // d3.select(this).classed('clickedOn', false);
-           toolTipDiv.transition()		
-               .duration(1000)		
-               .style("opacity", 0);
+          // toolTipDiv.transition()		
+          //     .duration(1000)		
+          //     .style("opacity", 0);
        })
        .on("click",function(){
            d3.selectAll(".smallMapsCaption").classed('clickedOn', false).style("opacity", 0);
@@ -381,12 +378,17 @@ function imageFound(gid,index,mainDiv,columnData,numberOfColumns) {
 function drawCharts(gid){
     d3.selectAll("#chart svg").remove()
     //d3.select("#chart").append("svg").attr("")
-    var text ="population"+" "+censusDictionary[gid]["SE_T002_001"]+"<br/>"
-    for(var i in dataKeys){
-        var columnName = dataKeys[i]
-        var value = censusDictionary[gid][i]
-        if(value!=undefined && value!=0){
-            text=text+columnName +" "+value+"<br/>"
+    var text ="<strong><span style=\"font-size:14px\">Population</span></strong>"+" <span style=\"color:red\">"+censusDictionary[gid]["SE_T002_001"]+"</span><br/>"
+    for(var i in currentTopicsDictionary){
+        var group = currentTopicsDictionary[i]
+        text+= "<br/><strong><span style=\"font-size:14px\">"+i+"</span></strong><br/>"
+        for(var g in group){
+            var code = group[g]
+            var columnName = dataKeys[code]
+            var value = censusDictionary[gid][code]
+            if(value!=undefined && value!=0){
+                text=text+columnName +" <span style=\"color:red\">"+value+"</span><br/>"
+            }
         }
     }
     d3.select("#chart").html(text).style("line-height","120%").style("padding","10px")
@@ -394,19 +396,19 @@ function drawCharts(gid){
 function drawDetailUSMap(gid){
     d3.selectAll("#countryMap svg").remove()
     var width = 300
-    var height = 220
+    var height = 160
     var data = states
-    var projection =  d3.geo.albers()
-			.center([-92,55])
+    var projection =  d3.geo.mercator()
+			.center([-96,39])
 			.translate([0, 0])
-			.scale(220)
-         //   .translate([width / 2, height / 2]);
+			.scale(270)
+            .translate([width / 2, height / 2]);
         
     var path = d3.geo.path()
         .projection(projection);
         
     var statesMap = d3.select("#countryMap")
-                    .append("svg").attr("width",300).attr("height",220)
+                    .append("svg").attr("width",300).attr("height",height)
         
         var lat = parseFloat(centroids[gid].lat)
         var lng = parseFloat(centroids[gid].lng)
@@ -418,11 +420,12 @@ function drawDetailUSMap(gid){
         .append("path")
         .attr('class',"states")
         .attr("stroke","#555555")
-        .attr("fill","#ffffff")
+        .attr("fill","none")
         .attr("d", path)
     statesMap.append("circle").attr("cx",projectedX).attr("cy",projectedY).attr("r",5).attr("fill","red").attr("opacity",.7)        
 }
 function loadDetailMap(gid){
+    d3.select("#tractMap map").remove()
     var centroid = [centroids[gid].lng,centroids[gid].lat]
     mapboxgl.accessToken ="pk.eyJ1IjoibWFwYm94amlhamlhamlhamlhIiwiYSI6ImNqZnZlZnEzMjBjYmMyd283YXBjZHlsa3oifQ.VwlUloNHMlngVyzLiG7ASQ"
     var map = new mapboxgl.Map({
@@ -430,7 +433,7 @@ function loadDetailMap(gid){
          style:"mapbox://styles/mapboxjiajiajiajia/cjfveg9389uqi2so5v2rwnqzt",
          center:centroid,
          zoom: 16,
-         preserveDrawingBuffer: true    
+         preserveDrawingBuffer: true
      });
      map.on("load",function(){
          d3.select(".mapboxgl-ctrl-bottom-right").remove()
