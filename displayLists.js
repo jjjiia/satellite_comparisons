@@ -39,11 +39,11 @@ var currentTopicsDictionary = {"population density":["SE_T002_002"],
 $(function() {
     queue()
         .defer(d3.csv,"census_filtered_population_100.csv")
-        .defer(d3.json,"states.geojson")
+        .defer(d3.json,"states_simplified.geojson")
         .defer(d3.json,"census_keys_short.json")
         .defer(d3.csv,"geo_names.csv")
         .defer(d3.csv,"allCentroids.csv")
-        .defer(d3.csv,"finished.csv")
+//        .defer(d3.csv,"finished.csv")
         .await(dataDidLoad);
 })
   
