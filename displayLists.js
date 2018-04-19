@@ -198,15 +198,16 @@ function sortByValue(column,lr){
         var entry = censusData[i]
         var gid = entry["Gid"]
         var value = parseFloat(entry[column])
+        var totalPop = parseFloat(entry["SE_T002_001"])
         if(value!=0){
-            formatted.push({Gid:gid,value:value})
+            formatted.push({Gid:gid,value:value,totalPop:totalPop})
         }
     }
     var sorted =formatted.sort(function(a, b){
         if(order == false){
-            return parseFloat(b["value"])-parseFloat(a["value"])
+            return parseFloat(b["value"])-parseFloat(a["value"])||parseFloat(b["totalPop"])-parseFloat(a["totalPop"])
         }else{
-            return parseFloat(a["value"])-parseFloat(b["value"])
+            return parseFloat(a["value"])-parseFloat(b["value"])||parseFloat(a["totalPop"])-parseFloat(b["totalPop"])
         }
     })
     return sorted;
